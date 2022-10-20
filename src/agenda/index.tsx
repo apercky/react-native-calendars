@@ -10,7 +10,8 @@ import {
   ViewStyle,
   LayoutChangeEvent,
   NativeSyntheticEvent,
-  NativeScrollEvent
+  NativeScrollEvent,
+  Platform
 } from 'react-native';
 
 import {extractComponentProps} from '../componentUpdater';
@@ -466,11 +467,22 @@ export default class Agenda extends Component<AgendaProps, State> {
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={8}
           scrollsToTop={false}
-          onTouchStart={this.onTouchStart}
-          onTouchEnd={this.onTouchEnd}
-          onScrollBeginDrag={this.onStartDrag}
-          onScrollEndDrag={this.onSnapAfterDrag}
-          onScroll={Animated.event([{nativeEvent: {contentOffset: {y: this.state.scrollY}}}], {useNativeDriver: true})}
+          {...(Platform.OS === 'web'
+            ? {
+                draggable: "true",
+                onMouseDown: this.onTouchStart,
+                onMouseUp: this.onTouchEnd,
+                onDragStart: this.onStartDrag,
+                onDragEnd: this.onSnapAfterDrag,
+                onScroll: Animated.event([{nativeEvent: {contentOffset: {y: this.state.scrollY}}}], {useNativeDriver: true})
+              }
+            : {
+                onTouchStart: this.onTouchStart, 
+                onTouchEnd: this.onTouchEnd, 
+                onScrollBeginDrag: this.onStartDrag, 
+                onScrollEndDrag: this.onSnapAfterDrag,
+                onScroll: Animated.event([{nativeEvent: {contentOffset: {y: this.state.scrollY}}}], {useNativeDriver: true})
+              })}
         >
           <View
             testID={AGENDA_CALENDAR_KNOB}
